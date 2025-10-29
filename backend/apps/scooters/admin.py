@@ -5,13 +5,17 @@ from .models import Scooter
 @admin.register(Scooter)
 class ScooterAdmin(admin.ModelAdmin):
     list_display = (
-        "id",
         "name",
         "latitude",
         "longitude",
+        "max_speed",
         "battery_level",
+        "total_price",
         "is_available",
     )
-    list_filter = ("is_available", "battery_level")
-    search_fields = ("id", "name")
-    ordering = ("id",)
+    list_filter = (
+        "is_available",
+        "battery_level",
+        "max_speed",
+    )
+    search_fields = ("name",)

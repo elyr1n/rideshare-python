@@ -9,7 +9,6 @@ class RentalAdmin(admin.ModelAdmin):
         "scooter",
         "start_time",
         "end_time",
-        "total_price",
     )
     list_filter = ("start_time", "end_time")
     search_fields = ("user__email", "scooter__name")

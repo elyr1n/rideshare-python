@@ -17,3 +17,8 @@ def scooter_list(request):
             "min_price": min_price,
         },
     )
+
+
+def scooter_detail(request, slug):
+    scooter = Scooter.objects.get(slug=slug)
+    return render(request, "scooters/scooter_detail.html", {"scooter": scooter})

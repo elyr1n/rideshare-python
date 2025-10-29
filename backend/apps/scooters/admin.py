@@ -19,3 +19,4 @@ class ScooterAdmin(admin.ModelAdmin):
         "max_speed",
     )
     search_fields = ("name",)
+    prepopulated_fields = {"slug": ("name",)}

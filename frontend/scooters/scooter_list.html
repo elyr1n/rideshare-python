@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<section class="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-900 dark:to-purple-900 text-white py-16">
+<section class="bg-blue-800 dark:bg-blue-950 text-white py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center">
             <h1 class="text-4xl md:text-5xl font-bold mb-4 text-balance">
@@ -17,7 +17,7 @@
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center transition-colors">
-            <div class="text-3xl font-bold text-primary dark:text-blue-400 mb-2">{{ scooters|length }}</div>
+            <div class="text-3xl font-bold text-blue-700 dark:text-blue-400 mb-2">{{ scooters|length }}</div>
             <div class="text-gray-600 dark:text-gray-400 text-sm">Всего самокатов</div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center transition-colors">
@@ -31,7 +31,7 @@
             <div class="text-gray-600 dark:text-gray-400 text-sm">Работаем круглосуточно</div>
         </div>
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center transition-colors">
-            <div class="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">от {{ min_price }}₽</div>
+            <div class="text-3xl font-bold text-blue-700 dark:text-blue-400 mb-2">от {{ min_price }}₽</div>
             <div class="text-gray-600 dark:text-gray-400 text-sm">Работаем круглосуточно</div>
         </div>
     </div>
@@ -40,22 +40,22 @@
         {% for scooter in scooters %}
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300" 
              x-data="{ showDetails: false }">
-            <div class="relative h-48 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 flex items-center justify-center">
+            <div class="relative h-48 bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                 {% if scooter.image %}
                 <img src="{{ scooter.image.url }}" alt="{{ scooter.name }}" class="w-full h-full object-cover">
                 {% else %}
-                <svg class="w-32 h-32 text-primary dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-32 h-32 text-blue-700 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                 </svg>
                 {% endif %}
                 
                 {% if scooter.is_available %}
-                <div class="absolute top-3 right-3 bg-green-500 dark:bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center space-x-1">
+                <div class="absolute top-3 right-3 bg-green-500 dark:bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center space-x-1 shadow-sm">
                     <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
                     <span>Доступен</span>
                 </div>
                 {% else %}
-                <div class="absolute top-3 right-3 bg-red-500 dark:bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                <div class="absolute top-3 right-3 bg-red-500 dark:bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-sm">
                     Занят
                 </div>
                 {% endif %}
@@ -75,7 +75,7 @@
                         <p class="text-sm text-gray-500 dark:text-gray-400">ID: #{{ scooter.id }}</p>
                     </div>
                     <div class="text-right">
-                        <div class="text-2xl font-bold text-primary dark:text-blue-400">{{ scooter.total_price }}₽</div>
+                        <div class="text-2xl font-bold text-blue-700 dark:text-blue-400">{{ scooter.total_price }}₽</div>
                         <div class="text-sm text-gray-500 dark:text-gray-400">за час</div>
                     </div>
                 </div>
@@ -89,30 +89,16 @@
                     </div>
                 </div>
                 
-                <button @click="showDetails = !showDetails" 
-                        class="text-primary dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium mb-3 flex items-center space-x-1 transition-colors">
-                    <span x-text="showDetails ? 'Скрыть характеристики' : 'Показать характеристики'"></span>
-                    <svg class="w-4 h-4 transition-transform" :class="showDetails ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                </button>
-                
-                <div x-show="showDetails" x-cloak x-transition class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4 text-sm text-gray-700 dark:text-gray-300">
-                    {{ scooter.description|default:"Описание отсутствует" }}
-                </div>
-                
-                {% if scooter.is_available %}
-                <button class="w-full bg-primary dark:bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <span>Арендовать</span>
-                </button>
-                {% else %}
-                <button disabled class="w-full bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 font-semibold py-3 rounded-lg cursor-not-allowed">
-                    Недоступен
-                </button>
-                {% endif %}
+            {% if scooter.is_available %}
+            <a href="{% url 'scooters:scooter-detail' scooter.slug %}" class="w-full bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2">
+                <span>Подробнее</span>
+            </a>
+            {% else %}
+            <button disabled class="w-full bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 font-semibold py-3 rounded-lg cursor-not-allowed">
+                Недоступен
+            </button>
+            {% endif %}
+
             </div>
         </div>
         {% empty %}
@@ -132,29 +118,29 @@
         <h2 class="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">Как это работает</h2>
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div class="text-center">
-                <div class="bg-primary/10 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-2xl font-bold text-primary dark:text-blue-400">1</span>
+                <div class="bg-blue-700/10 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-2xl font-bold text-blue-700 dark:text-blue-400">1</span>
                 </div>
                 <h3 class="font-semibold text-lg mb-2 text-gray-900 dark:text-white">Выберите самокат</h3>
                 <p class="text-gray-600 dark:text-gray-400 text-sm">Найдите подходящий самокат из списка доступных</p>
             </div>
             <div class="text-center">
-                <div class="bg-primary/10 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-2xl font-bold text-primary dark:text-blue-400">2</span>
+                <div class="bg-blue-700/10 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-2xl font-bold text-blue-700 dark:text-blue-400">2</span>
                 </div>
                 <h3 class="font-semibold text-lg mb-2 text-gray-900 dark:text-white">Оплатите аренду</h3>
                 <p class="text-gray-600 dark:text-gray-400 text-sm">Выберите удобный способ оплаты</p>
             </div>
             <div class="text-center">
-                <div class="bg-primary/10 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-2xl font-bold text-primary dark:text-blue-400">3</span>
+                <div class="bg-blue-700/10 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-2xl font-bold text-blue-700 dark:text-blue-400">3</span>
                 </div>
                 <h3 class="font-semibold text-lg mb-2 text-gray-900 dark:text-white">Начните поездку</h3>
                 <p class="text-gray-600 dark:text-gray-400 text-sm">Разблокируйте самокат и наслаждайтесь поездкой</p>
             </div>
             <div class="text-center">
-                <div class="bg-primary/10 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-2xl font-bold text-primary dark:text-blue-400">4</span>
+                <div class="bg-blue-700/10 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-2xl font-bold text-blue-700 dark:text-blue-400">4</span>
                 </div>
                 <h3 class="font-semibold text-lg mb-2 text-gray-900 dark:text-white">Завершите аренду</h3>
                 <p class="text-gray-600 dark:text-gray-400 text-sm">Припаркуйте самокат и завершите сессию</p>

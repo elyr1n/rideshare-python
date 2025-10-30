@@ -1,12 +1,11 @@
 from django.shortcuts import render
 from .models import Scooter
-from django.db.models import Min
 
 
 def scooter_list(request):
     scooters = Scooter.objects.all()
-    available_scooters = [s for s in scooters if s.is_available]
-    min_price = scooters.aggregate(Min("total_price"))["total_price__min"]
+    available_scooters = Scooter.objects.available_scooters()
+    min_price = Scooter.objects.get_min_price()
 
     return render(
         request,

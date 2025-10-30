@@ -1,11 +1,20 @@
 from django.shortcuts import render
 from .models import Scooter
+from apps.cities.models import City
 
 
 def scooter_list(request):
+    city_id = request.GET.get("city")
+
     scooters = Scooter.objects.all()
     available_scooters = Scooter.objects.available_scooters()
+
+    if city_id:
+        scooters = scooters.filter(city_id=city_id)
+        available_scooters = available_scooters.filter(city_id=city_id)
+
     min_price = Scooter.objects.get_min_price()
+    cities = City.objects.all()
 
     return render(
         request,
@@ -14,6 +23,8 @@ def scooter_list(request):
             "scooters": scooters,
             "available_scooters": available_scooters,
             "min_price": min_price,
+            "cities": cities,
+            "selected_city": city_id,
         },
     )
 

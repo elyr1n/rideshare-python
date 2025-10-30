@@ -30,6 +30,7 @@ LOCAL_APPS = [
     "apps.users",
     "apps.rentals",
     "apps.scooters",
+    "apps.cities",
 ]
 
 INSTALLED_APPS += LOCAL_APPS

@@ -15,6 +15,35 @@
 </section>
 
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Форма выбора города -->
+    <div class="mb-8">
+        <form method="get" class="flex items-center space-x-4">
+            <label for="city" class="text-lg font-semibold text-gray-700 dark:text-gray-300">
+                Выберите город:
+            </label>
+            <select 
+                name="city" 
+                id="city"
+                onchange="this.form.submit()"
+                class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+                <option value="">Все города</option>
+                {% for city in cities %}
+                    <option value="{{ city.id }}" 
+                        {% if selected_city == city.id|stringformat:"i" %}selected{% endif %}>
+                        {{ city.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            {% if selected_city %}
+                <a href="{% url 'scooters:scooter-list' %}" 
+                   class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors">
+                    Сбросить
+                </a>
+            {% endif %}
+        </form>
+    </div>
+
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center transition-colors">
             <div class="text-3xl font-bold text-blue-700 dark:text-blue-400 mb-2">{{ scooters|length }}</div>
@@ -36,10 +65,22 @@
         </div>
     </div>
 
+    <!-- Информация о выбранном городе -->
+    {% if selected_city %}
+        {% for city in cities %}
+            {% if city.id == selected_city|add:"0" %}
+                <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <h2 class="text-xl font-semibold text-blue-800 dark:text-blue-300">
+                        Самокаты в городе {{ city.name }}
+                    </h2>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for scooter in scooters %}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300" 
-             x-data="{ showDetails: false }">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300">
             <div class="relative h-48 bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                 {% if scooter.image %}
                 <img src="{{ scooter.image.url }}" alt="{{ scooter.name }}" class="w-full h-full object-cover">
@@ -73,6 +114,9 @@
                     <div>
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-1">{{ scooter.name }}</h3>
                         <p class="text-sm text-gray-500 dark:text-gray-400">ID: #{{ scooter.id }}</p>
+                        <p class="text-sm text-blue-600 dark:text-blue-400 mt-1">
+                            {{ scooter.city.name }}
+                        </p>
                     </div>
                     <div class="text-right">
                         <div class="text-2xl font-bold text-blue-700 dark:text-blue-400">{{ scooter.total_price }}₽</div>
@@ -107,7 +151,13 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">Самокаты не найдены</h3>
-            <p class="text-gray-500 dark:text-gray-500">В данный момент нет доступных самокатов</p>
+            <p class="text-gray-500 dark:text-gray-500">
+                {% if selected_city %}
+                    В выбранном городе нет доступных самокатов
+                {% else %}
+                    В данный момент нет доступных самокатов
+                {% endif %}
+            </p>
         </div>
         {% endfor %}
     </div>

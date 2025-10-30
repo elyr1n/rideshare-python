@@ -8,12 +8,13 @@ class ScooterManager(models.Manager):
         return self.filter(is_available=True)
 
     def get_min_price(self):
-        return self.aggregate(min_price=Min("total_price"))["min_price"]
+        return self.aggregate(min_price=Min("total_price"))["min_price"] or 0
 
 
 class Scooter(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100, unique=True)
+    city = models.ForeignKey("cities.City", on_delete=models.CASCADE)
     description = models.TextField()
     latitude = models.FloatField()
     longitude = models.FloatField()

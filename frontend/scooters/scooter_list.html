@@ -15,7 +15,6 @@
 </section>
 
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <!-- Форма выбора города -->
     <div class="mb-8">
         <form method="get" class="flex items-center space-x-4">
             <label for="city" class="text-lg font-semibold text-gray-700 dark:text-gray-300">
@@ -65,7 +64,6 @@
         </div>
     </div>
 
-    <!-- Информация о выбранном городе -->
     {% if selected_city %}
         {% for city in cities %}
             {% if city.id == selected_city|add:"0" %}

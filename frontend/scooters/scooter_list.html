@@ -1,199 +1,335 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}{{ model.name }} - Аренда электросамокатов{% endblock %}
 
 {% block content %}
-<section class="bg-blue-800 dark:bg-blue-950 text-white py-16">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4 text-balance">
-                Арендуйте электросамокат прямо сейчас
-            </h1>
-            <p class="text-xl text-blue-100 dark:text-blue-200 mb-8 text-pretty">
-                Выберите подходящий самокат и начните свое путешествие по городу
-            </p>
-        </div>
-    </div>
-</section>
-
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="mb-8">
-        <form method="get" class="flex items-center space-x-4">
-            <label for="city" class="text-lg font-semibold text-gray-700 dark:text-gray-300">
-                Выберите город:
-            </label>
-            <select 
-                name="city" 
-                id="city"
-                onchange="this.form.submit()"
-                class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-                <option value="">Все города</option>
-                {% for city in cities %}
-                    <option value="{{ city.id }}" 
-                        {% if selected_city == city.id|stringformat:"i" %}selected{% endif %}>
-                        {{ city.name }}
-                    </option>
-                {% endfor %}
-            </select>
-            {% if selected_city %}
-                <a href="{% url 'scooters:scooter-list' %}" 
-                   class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors">
-                    Сбросить
-                </a>
-            {% endif %}
-        </form>
-    </div>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center transition-colors">
-            <div class="text-3xl font-bold text-blue-700 dark:text-blue-400 mb-2">{{ scooters|length }}</div>
-            <div class="text-gray-600 dark:text-gray-400 text-sm">Всего самокатов</div>
-        </div>
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center transition-colors">
-            <div class="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
-                {{ available_scooters|length }}
-            </div>
-            <div class="text-gray-600 dark:text-gray-400 text-sm">Доступно сейчас</div>
-        </div>
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center transition-colors">
-            <div class="text-3xl font-bold text-orange-600 dark:text-orange-400 mb-2">24/7</div>
-            <div class="text-gray-600 dark:text-gray-400 text-sm">Работаем круглосуточно</div>
-        </div>
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center transition-colors">
-            <div class="text-3xl font-bold text-blue-700 dark:text-blue-400 mb-2">от {{ min_price }}₽</div>
-            <div class="text-gray-600 dark:text-gray-400 text-sm">Минимальные цены</div>
-        </div>
-    </div>
-
-    {% if selected_city %}
-        {% for city in cities %}
-            {% if city.id == selected_city|add:"0" %}
-                <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <h2 class="text-xl font-semibold text-blue-800 dark:text-blue-300">
-                        Самокаты в городе {{ city.name }}
-                    </h2>
-                </div>
-            {% endif %}
-        {% endfor %}
-    {% endif %}
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for scooter in scooters %}
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300">
-            <div class="relative h-48 bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                {% if scooter.image %}
-                <img src="{{ scooter.image.url }}" alt="{{ scooter.name }}" class="w-full h-full object-cover">
-                {% else %}
-                <svg class="w-32 h-32 text-blue-700 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                </svg>
-                {% endif %}
-                
-                {% if scooter.is_available %}
-                <div class="absolute top-3 right-3 bg-green-500 dark:bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold flex items-center space-x-1 shadow-sm">
-                    <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-                    <span>Доступен</span>
-                </div>
-                {% else %}
-                <div class="absolute top-3 right-3 bg-red-500 dark:bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-sm">
-                    Занят
-                </div>
-                {% endif %}
-                
-                <div class="absolute bottom-3 left-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-semibold flex items-center space-x-2">
-                    <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/>
-                    </svg>
-                    <span class="text-gray-700 dark:text-gray-300">{{ scooter.battery_level }}%</span>
-                </div>
+<div class="container mx-auto px-4 py-12" x-data="scooterList()">
+    <div class="mb-12">
+        <a href="/" class="inline-flex items-center space-x-2 mb-6 transition-all duration-300 hover:translate-x-1" :class="darkMode ? 'text-purple-400 hover:text-purple-300' : 'text-purple-600 hover:text-purple-700'">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            <span class="font-semibold">Назад к моделям</span>
+        </a>
+        
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
+            <div>
+                <h1 class="text-4xl md:text-6xl font-bold mb-4" :class="darkMode ? 'text-purple-400' : 'text-purple-600'">{{ model.name }}</h1>
+                <p class="text-lg" :class="darkMode ? 'text-slate-400' : 'text-slate-600'">{{ model.description }}</p>
             </div>
             
-            <div class="p-6">
-                <div class="flex justify-between items-start mb-3">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-1">{{ scooter.name }}</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">ID: #{{ scooter.id }}</p>
-                        <p class="text-sm text-blue-600 dark:text-blue-400 mt-1">
-                            {{ scooter.city.name }}
-                        </p>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-2xl font-bold text-blue-700 dark:text-blue-400">{{ scooter.total_price }}₽</div>
-                        <div class="text-sm text-gray-500 dark:text-gray-400">за час</div>
+            <div class="flex-shrink-0">
+                <div class="rounded-2xl p-6 glass-effect border-2" :class="darkMode ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200'">
+                    <div class="text-center">
+                        <div class="text-sm mb-2" :class="darkMode ? 'text-slate-500' : 'text-slate-500'">Город</div>
+                        <div class="text-2xl font-bold text-purple-500">{{ model.city.name }}</div>
                     </div>
                 </div>
-                
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                    <div class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                        <svg class="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
-                        <span>{{ scooter.max_speed }} км/ч</span>
-                    </div>
-                </div>
-                
-            {% if scooter.is_available %}
-            <a href="{% url 'scooters:scooter-detail' scooter.slug %}" class="w-full bg-blue-700 dark:bg-blue-600 hover:bg-blue-800 dark:hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2">
-                <span>Подробнее</span>
-            </a>
-            {% else %}
-            <button disabled class="w-full bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 font-semibold py-3 rounded-lg cursor-not-allowed">
-                Недоступен
-            </button>
-            {% endif %}
-
             </div>
         </div>
-        {% empty %}
-        <div class="col-span-full text-center py-12">
-            <svg class="w-24 h-24 text-gray-300 dark:text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    </div>
+
+    {% if scooters %}
+    <div class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="rounded-2xl p-6 glass-effect border-2" :class="darkMode ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200'">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center" :class="darkMode ? 'bg-emerald-900/50' : 'bg-emerald-100'">
+                    <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="text-sm" :class="darkMode ? 'text-slate-500' : 'text-slate-500'">Средний заряд</div>
+                    <div class="text-2xl font-bold text-emerald-500" x-text="stats.avgBattery + '%'"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-2xl p-6 glass-effect border-2" :class="darkMode ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200'">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center" :class="darkMode ? 'bg-blue-900/50' : 'bg-blue-100'">
+                    <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="text-sm" :class="darkMode ? 'text-slate-500' : 'text-slate-500'">Высокий заряд</div>
+                    <div class="text-2xl font-bold text-blue-500" x-text="stats.highBattery + ' шт'"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rounded-2xl p-6 glass-effect border-2" :class="darkMode ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200'">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl flex items-center justify-center" :class="darkMode ? 'bg-amber-900/50' : 'bg-amber-100'">
+                    <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="text-sm" :class="darkMode ? 'text-slate-500' : 'text-slate-500'">Низкий заряд</div>
+                    <div class="text-2xl font-bold text-amber-500" x-text="stats.lowBattery + ' шт'"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-8 rounded-3xl overflow-hidden glass-effect border-2 p-6" :class="darkMode ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200'">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="md:col-span-2">
+                <label class="block text-sm font-semibold mb-2" :class="darkMode ? 'text-slate-400' : 'text-slate-600'">Поиск по ID или местоположению</label>
+                <input type="text" x-model="searchQuery" placeholder="Введите ID или адрес..." class="w-full px-4 py-3 rounded-xl border-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500" :class="darkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200'">
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold mb-2" :class="darkMode ? 'text-slate-400' : 'text-slate-600'">Сортировка</label>
+                <select x-model="sortBy" class="w-full px-4 py-3 rounded-xl border-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500" :class="darkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-50 border-slate-200'">
+                    <option value="battery">По заряду</option>
+                    <option value="price">По цене</option>
+                    <option value="id">По ID</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold mb-2" :class="darkMode ? 'text-slate-400' : 'text-slate-600'">Минимальный заряд: <span x-text="filterBattery + '%'"></span></label>
+                <input type="range" x-model="filterBattery" min="0" max="100" step="10" class="w-full h-2 rounded-lg appearance-none cursor-pointer" :class="darkMode ? 'bg-slate-700' : 'bg-slate-200'">
+            </div>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between">
+            <div class="text-sm" :class="darkMode ? 'text-slate-400' : 'text-slate-600'">
+                Найдено: <span class="font-bold" x-text="filteredScooters.length"></span> из <span class="font-bold">{{ scooters|length }}</span>
+            </div>
+            <button @click="showMap = !showMap; initMap()" class="px-4 py-2 rounded-xl glass-effect border-2 font-semibold transition-all duration-300 hover:scale-105 flex items-center space-x-2" :class="darkMode ? 'bg-slate-800/60 border-slate-700 hover:border-purple-500' : 'bg-slate-50 border-slate-200 hover:border-purple-400'">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                </svg>
+                <span x-text="showMap ? 'Скрыть карту' : 'Показать на карте'"></span>
+            </button>
+        </div>
+    </div>
+
+    <div x-show="showMap" x-transition class="mb-8 rounded-3xl overflow-hidden glass-effect border-2" :class="darkMode ? 'bg-slate-900/60 border-slate-800' : 'bg-white border-slate-200'">
+        <div id="allScootersMap" class="w-full h-96"></div>
+    </div>
+
+    <div class="mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-3xl font-bold" :class="darkMode ? 'text-purple-400' : 'text-purple-600'">Доступные самокаты</h2>
+            <div class="rounded-full px-5 py-2 glass-effect border" :class="darkMode ? 'bg-emerald-900/40 border-emerald-700' : 'bg-emerald-50 border-emerald-300'">
+                <span class="font-semibold text-emerald-500" x-text="filteredScooters.length + ' шт'"></span>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for scooter in scooters %}
+            <div class="group relative rounded-3xl overflow-hidden card-hover glass-effect border-2 scooter-card" 
+                 :class="darkMode ? 'bg-slate-900/60 border-slate-800 hover:border-purple-700' : 'bg-white border-slate-200 hover:border-purple-400'"
+                 data-id="{{ scooter.id }}"
+                 data-battery="{{ scooter.battery_level }}"
+                 data-price="{{ scooter.total_price }}"
+                 data-location="{{ scooter.location }}"
+                 data-slug="{{ scooter.slug }}"
+                 data-latitude="{{ scooter.latitude }}"
+                 data-longitude="{{ scooter.longitude }}"
+                 x-show="isVisible({{ scooter.id }}, {{ scooter.battery_level }}, '{{ scooter.location }}')"
+                 x-transition>
+                <div class="relative p-6 border-b-2" :class="darkMode ? 'bg-slate-800/40 border-slate-800' : 'bg-slate-50 border-slate-200'">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center" :class="darkMode ? 'bg-purple-900/50' : 'bg-purple-100'">
+                                <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-xs" :class="darkMode ? 'text-slate-500' : 'text-slate-500'">ID</div>
+                                <div class="font-bold" :class="darkMode ? 'text-purple-400' : 'text-purple-600'">#{{ scooter.id }}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
+                            <span class="text-sm font-semibold text-emerald-500">Доступен</span>
+                        </div>
+                    </div>
+                    
+                    <div class="relative">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm" :class="darkMode ? 'text-slate-400' : 'text-slate-600'">Заряд батареи</span>
+                            <span class="text-sm font-bold" :class="{{ scooter.battery_level }} >= 70 ? 'text-emerald-500' : ({{ scooter.battery_level }} >= 30 ? 'text-amber-500' : 'text-red-500')">{{ scooter.battery_level }}%</span>
+                        </div>
+                        <div class="w-full h-3 rounded-full overflow-hidden" :class="darkMode ? 'bg-slate-700' : 'bg-slate-200'">
+                            <div class="h-full rounded-full transition-all duration-500 battery-bar" 
+                                 :class="{{ scooter.battery_level }} >= 70 ? 'bg-emerald-500' : ({{ scooter.battery_level }} >= 30 ? 'bg-amber-500' : 'bg-red-500')"
+                                 data-battery="{{ scooter.battery_level }}"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center justify-between p-3 rounded-xl glass-effect border" :class="darkMode ? 'bg-slate-800/40 border-slate-700' : 'bg-slate-50 border-slate-200'">
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+                                </svg>
+                                <span class="text-sm" :class="darkMode ? 'text-slate-400' : 'text-slate-600'">Цена</span>
+                            </div>
+                            <span class="text-lg font-bold" :class="darkMode ? 'text-purple-400' : 'text-purple-600'">{{ scooter.total_price }} ₽</span>
+                        </div>
+                    </div>
+                    
+                    <a href="/scooter/{{ scooter.slug }}/" 
+                       class="block w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-xl text-center transition-all duration-300 transform hover:scale-105 mb-3">
+                        Подробнее
+                    </a>
+                    
+                    <button @click="focusOnMap({{ scooter.latitude }}, {{ scooter.longitude }}, '{{ scooter.location }}', {{ scooter.id }})" class="block w-full glass-effect border-2 font-semibold py-3 px-6 rounded-xl text-center transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2" :class="darkMode ? 'bg-slate-800/60 border-slate-700 hover:border-blue-500' : 'bg-slate-50 border-slate-200 hover:border-blue-400'">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        <span>Показать на карте</span>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-20">
+        <div class="relative inline-block mb-6">
+            <svg class="w-32 h-32 mx-auto" :class="darkMode ? 'text-slate-700' : 'text-slate-300'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-400 mb-2">Самокаты не найдены</h3>
-            <p class="text-gray-500 dark:text-gray-500">
-                {% if selected_city %}
-                    В выбранном городе нет доступных самокатов
-                {% else %}
-                    В данный момент нет доступных самокатов
-                {% endif %}
-            </p>
         </div>
-        {% endfor %}
+        <h3 class="text-3xl font-bold mb-4" :class="darkMode ? 'text-slate-500' : 'text-slate-600'">Нет доступных самокатов</h3>
+        <p class="text-lg mb-8" :class="darkMode ? 'text-slate-600' : 'text-slate-500'">К сожалению, все самокаты этой модели сейчас заняты</p>
+        <a href="/" class="inline-block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-8 rounded-xl transition-all duration-300 transform hover:scale-105">
+            Вернуться к моделям
+        </a>
     </div>
-</section>
+    {% endif %}
+</div>
 
-<section class="bg-white dark:bg-gray-900 py-16 transition-colors">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">Как это работает</h2>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div class="text-center">
-                <div class="bg-blue-700/10 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-2xl font-bold text-blue-700 dark:text-blue-400">1</span>
-                </div>
-                <h3 class="font-semibold text-lg mb-2 text-gray-900 dark:text-white">Выберите самокат</h3>
-                <p class="text-gray-600 dark:text-gray-400 text-sm">Найдите подходящий самокат из списка доступных</p>
-            </div>
-            <div class="text-center">
-                <div class="bg-blue-700/10 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-2xl font-bold text-blue-700 dark:text-blue-400">2</span>
-                </div>
-                <h3 class="font-semibold text-lg mb-2 text-gray-900 dark:text-white">Оплатите аренду</h3>
-                <p class="text-gray-600 dark:text-gray-400 text-sm">Выберите удобный способ оплаты</p>
-            </div>
-            <div class="text-center">
-                <div class="bg-blue-700/10 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-2xl font-bold text-blue-700 dark:text-blue-400">3</span>
-                </div>
-                <h3 class="font-semibold text-lg mb-2 text-gray-900 dark:text-white">Начните поездку</h3>
-                <p class="text-gray-600 dark:text-gray-400 text-sm">Разблокируйте самокат и наслаждайтесь поездкой</p>
-            </div>
-            <div class="text-center">
-                <div class="bg-blue-700/10 dark:bg-blue-900/30 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-2xl font-bold text-blue-700 dark:text-blue-400">4</span>
-                </div>
-                <h3 class="font-semibold text-lg mb-2 text-gray-900 dark:text-white">Завершите аренду</h3>
-                <p class="text-gray-600 dark:text-gray-400 text-sm">Припаркуйте самокат и завершите сессию</p>
-            </div>
-        </div>
-    </div>
-</section>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.querySelectorAll('.battery-bar').forEach(bar => {
+    const battery = parseInt(bar.dataset.battery);
+    bar.style.width = battery + '%';
+});
+
+function scooterList() {
+    return {
+        searchQuery: '',
+        sortBy: 'battery',
+        filterBattery: 0,
+        showMap: false,
+        scooters: [],
+        map: null,
+        markers: [],
+        
+        init() {
+            const scooterCards = document.querySelectorAll('.scooter-card');
+            this.scooters = Array.from(scooterCards).map(card => ({
+                id: parseInt(card.dataset.id),
+                battery_level: parseInt(card.dataset.battery),
+                total_price: parseFloat(card.dataset.price),
+                location: card.dataset.location,
+                slug: card.dataset.slug,
+                latitude: parseFloat(card.dataset.latitude),
+                longitude: parseFloat(card.dataset.longitude)
+            }));
+        },
+        
+        isVisible(id, battery, location) {
+            const matchesSearch = location.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
+                                  id.toString().includes(this.searchQuery);
+            const matchesBattery = battery >= this.filterBattery;
+            return matchesSearch && matchesBattery;
+        },
+        
+        get filteredScooters() {
+            let filtered = this.scooters.filter(s => {
+                const matchesSearch = s.location.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
+                                      s.id.toString().includes(this.searchQuery);
+                const matchesBattery = s.battery_level >= this.filterBattery;
+                return matchesSearch && matchesBattery;
+            });
+            
+            if (this.sortBy === 'battery') {
+                filtered.sort((a, b) => b.battery_level - a.battery_level);
+            } else if (this.sortBy === 'price') {
+                filtered.sort((a, b) => a.total_price - b.total_price);
+            } else if (this.sortBy === 'id') {
+                filtered.sort((a, b) => a.id - b.id);
+            }
+            
+            return filtered;
+        },
+        
+        get stats() {
+            if (this.scooters.length === 0) return { avgBattery: 0, highBattery: 0, lowBattery: 0 };
+            const avgBattery = Math.round(this.scooters.reduce((sum, s) => sum + s.battery_level, 0) / this.scooters.length);
+            const highBattery = this.scooters.filter(s => s.battery_level >= 70).length;
+            const lowBattery = this.scooters.filter(s => s.battery_level < 30).length;
+            return { avgBattery, highBattery, lowBattery };
+        },
+        
+        initMap() {
+            if (this.showMap && !this.map && this.scooters.length > 0) {
+                setTimeout(() => {
+                    const firstScooter = this.scooters[0];
+                    this.map = L.map('allScootersMap').setView([firstScooter.latitude, firstScooter.longitude], 13);
+                    
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors'
+                    }).addTo(this.map);
+
+                    const scooterIcon = L.divIcon({
+                        className: 'custom-scooter-marker',
+                        html: '<div style="background: #a855f7; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.5); border: 2px solid white;"><svg style="width: 18px; height: 18px; color: white;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>',
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 16]
+                    });
+
+                    this.scooters.forEach(scooter => {
+                        const marker = L.marker([scooter.latitude, scooter.longitude], { icon: scooterIcon })
+                            .addTo(this.map)
+                            .bindPopup('<div style="text-align: center; padding: 8px;"><strong style="color: #a855f7; font-size: 16px;">ID: #' + scooter.id + '</strong><br><span style="color: #10b981; font-weight: bold;">Заряд: ' + scooter.battery_level + '%</span><br><span style="color: #64748b;">' + scooter.location + '</span></div>');
+                        this.markers.push(marker);
+                    });
+                }, 100);
+            }
+        },
+        
+        focusOnMap(lat, lng, location, id) {
+            if (!this.showMap) {
+                this.showMap = true;
+                this.initMap();
+                setTimeout(() => {
+                    this.map.setView([lat, lng], 16);
+                    this.markers.forEach(marker => {
+                        const markerLatLng = marker.getLatLng();
+                        if (markerLatLng.lat === lat && markerLatLng.lng === lng) {
+                            marker.openPopup();
+                        }
+                    });
+                }, 200);
+            } else {
+                this.map.setView([lat, lng], 16);
+                this.markers.forEach(marker => {
+                    const markerLatLng = marker.getLatLng();
+                    if (markerLatLng.lat === lat && markerLatLng.lng === lng) {
+                        marker.openPopup();
+                    }
+                });
+            }
+            window.scrollTo({ top: document.getElementById('allScootersMap').offsetTop - 100, behavior: 'smooth' });
+        }
+    }
+}
+</script>
 {% endblock %}

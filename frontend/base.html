@@ -1,176 +1,263 @@
 <!DOCTYPE html>
-<html lang="ru" x-data="themeManager()" :class="{ 'dark': darkMode }">
+<html lang="ru" x-data="{ darkMode: true }" :class="{ 'dark': darkMode }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Аренда самокатов{% endblock %}</title>
+    <title>{% block title %}Аренда электросамокатов{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        primary: '#3b82f6',
-                        secondary: '#8b5cf6',
+                        neon: {
+                            blue: '#3b82f6',
+                            purple: '#8b5cf6',
+                            pink: '#ec4899',
+                            indigo: '#6366f1',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        h1, h2, h3, .logo {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        body {
+            transition: all 0.3s ease;
+        }
+        
+        body.dark {
+            background: #0a0a1a;
+        }
+        
+        body:not(.dark) {
+            background: #f5f5f7;
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+        }
+        
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+        }
+        
+        .theme-toggle {
+            position: relative;
+            width: 56px;
+            height: 28px;
+            border-radius: 28px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .dark .theme-toggle {
+            background: #6366f1;
+        }
+        
+        body:not(.dark) .theme-toggle {
+            background: #fbbf24;
+        }
+        
+        .theme-toggle-circle {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .theme-toggle.active .theme-toggle-circle {
+            left: 31px;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body :class="darkMode ? 'dark text-slate-100' : 'text-slate-800'">
+    <canvas id="particles"></canvas>
+    
+    <div class="relative z-10">
+        <header class="container mx-auto px-4 py-6">
+            <nav class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <svg class="w-10 h-10 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <span class="text-2xl font-bold logo" :class="darkMode ? 'text-purple-400' : 'text-purple-600'">Ride-Share</span>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+                    <div class="hidden md:flex space-x-6">
+                        <a href="/" class="hover:text-purple-500 transition font-medium">Главная</a>
+                        <a href="#models" class="hover:text-blue-500 transition font-medium">Модели</a>
+                        <a href="#contact" class="hover:text-pink-500 transition font-medium">Контакты</a>
+                    </div>
+                    
+                    <div 
+                        @click="darkMode = !darkMode"
+                        class="theme-toggle"
+                        :class="{ 'active': darkMode }">
+                        <div class="theme-toggle-circle flex items-center justify-center">
+                            <svg x-show="!darkMode" class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
+                            </svg>
+                            <svg x-show="darkMode" class="w-4 h-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="container mx-auto px-4 py-12 mt-20 border-t" :class="darkMode ? 'border-slate-800' : 'border-slate-300'">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-3 mb-4">
+                    <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    <span class="text-2xl font-bold logo" :class="darkMode ? 'text-purple-400' : 'text-purple-600'">Ride-Share</span>
+                </div>
+                <p :class="darkMode ? 'text-slate-500' : 'text-slate-600'">&copy; 2025 Ride-Share. Все права защищены.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const particles = [];
+        const particleCount = 50;
+        
+        const colors = [
+            'rgba(139, 92, 246, ',
+            'rgba(59, 130, 246, ',
+            'rgba(236, 72, 153, ',
+            'rgba(99, 102, 241, '
+        ];
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2.5 + 1;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.opacity = Math.random() * 0.3 + 0.2;
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                
+                if (this.x > canvas.width) this.x = 0;
+                if (this.x < 0) this.x = canvas.width;
+                if (this.y > canvas.height) this.y = 0;
+                if (this.y < 0) this.y = canvas.height;
+            }
+            
+            draw() {
+                ctx.fillStyle = this.color + this.opacity + ')';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+        
+        function connectParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        ctx.strokeStyle = `rgba(139, 92, 246, ${0.08 * (1 - distance / 100)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
                     }
                 }
             }
         }
         
-        function themeManager() {
-            return {
-                darkMode: localStorage.getItem('darkMode') === 'true',
-                init() {
-                    this.$watch('darkMode', value => {
-                        localStorage.setItem('darkMode', value);
-                    });
-                },
-                toggleTheme() {
-                    this.darkMode = !this.darkMode;
-                }
-            }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            connectParticles();
+            
+            requestAnimationFrame(animate);
         }
+        
+        animate();
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
     </script>
-    
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
-    
-    {% block extra_head %}{% endblock %}
-</head>
-<body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col transition-colors duration-200">
-    <header class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50 transition-colors duration-200" x-data="{ mobileMenuOpen: false }">
-        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <a href="/" class="flex items-center space-x-2">
-                        <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
-                        <span class="text-2xl font-bold text-gray-900 dark:text-white">RideShare</span>
-                    </a>
-                </div>
-                
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors font-medium">Главная</a>
-                    <a href="#" class="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors font-medium">Как это работает</a>
-                    <a href="#" class="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors font-medium">Контакты</a>
-                    
-                    <button @click="toggleTheme()" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                        <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
-                        </svg>
-                        <svg x-show="darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-                        </svg>
-                    </button>
-                    
-                    <a href="#" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors font-medium">
-                        Войти
-                    </a>
-                </div>
-                
-                <div class="md:hidden flex items-center space-x-2">
-                    <button @click="toggleTheme()" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                        <svg x-show="!darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
-                        </svg>
-                        <svg x-show="darkMode" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-                        </svg>
-                    </button>
-                    
-                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-gray-700 dark:text-gray-300 hover:text-primary">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                            <path x-show="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            
-            <div x-show="mobileMenuOpen" x-cloak x-transition class="md:hidden pb-4">
-                <div class="flex flex-col space-y-3">
-                    <a href="/" class="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors font-medium">Главная</a>
-                    <a href="#" class="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors font-medium">Как это работает</a>
-                    <a href="#" class="text-gray-700 dark:text-gray-300 hover:text-primary transition-colors font-medium">Контакты</a>
-                    <a href="#" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors font-medium text-center">
-                        Войти
-                    </a>
-                </div>
-            </div>
-        </nav>
-    </header>
-
-    <main class="flex-grow">
-        {% block content %}{% endblock %}
-    </main>
-
-    <footer class="bg-gray-900 dark:bg-gray-950 text-gray-300 dark:text-gray-400 mt-16 transition-colors duration-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div class="col-span-1 md:col-span-2">
-                    <div class="flex items-center space-x-2 mb-4">
-                        <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
-                        <span class="text-2xl font-bold text-white">RideShare</span>
-                    </div>
-                    <p class="text-gray-400 dark:text-gray-500 mb-4">
-                        Современный сервис аренды электросамокатов. Быстро, удобно, экологично.
-                    </p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-gray-400 dark:text-gray-500 hover:text-primary transition-colors">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                            </svg>
-                        </a>
-                        <a href="#" class="text-gray-400 dark:text-gray-500 hover:text-primary transition-colors">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                            </svg>
-                        </a>
-                        <a href="#" class="text-gray-400 dark:text-gray-500 hover:text-primary transition-colors">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-                
-                <div>
-                    <h3 class="text-white font-semibold mb-4">Быстрые ссылки</h3>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 dark:text-gray-500 hover:text-primary transition-colors">О нас</a></li>
-                        <li><a href="#" class="text-gray-400 dark:text-gray-500 hover:text-primary transition-colors">Правила</a></li>
-                        <li><a href="#" class="text-gray-400 dark:text-gray-500 hover:text-primary transition-colors">FAQ</a></li>
-                        <li><a href="#" class="text-gray-400 dark:text-gray-500 hover:text-primary transition-colors">Поддержка</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h3 class="text-white font-semibold mb-4">Контакты</h3>
-                    <ul class="space-y-2">
-                        <li class="text-gray-400 dark:text-gray-500">
-                            <span class="block">Email:</span>
-                            <a href="mailto:info@RideShare.ru" class="hover:text-primary transition-colors">info@rideshare.ru</a>
-                        </li>
-                        <li class="text-gray-400 dark:text-gray-500">
-                            <span class="block">Телефон:</span>
-                            <a href="tel:+79001234567" class="hover:text-primary transition-colors">+7 (900) 123-45-67</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="border-t border-gray-800 dark:border-gray-900 mt-8 pt-8 text-center text-gray-400 dark:text-gray-500">
-                <p>&copy; 2025 RideShare. Все права защищены.</p>
-            </div>
-        </div>
-    </footer>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

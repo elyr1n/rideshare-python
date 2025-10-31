@@ -1,11 +1,23 @@
 from django.contrib import admin
-from .models import Scooter
+from .models import ScooterModel, Scooter
+
+
+@admin.register(ScooterModel)
+class ScooterModelAdmin(admin.ModelAdmin):
+    list_display = (
+        "name",
+        "city",
+        "description",
+    )
+    list_filter = ("name", "city")
+    search_fields = ("name",)
+    prepopulated_fields = {"slug": ("name",)}
 
 
 @admin.register(Scooter)
 class ScooterAdmin(admin.ModelAdmin):
     list_display = (
-        "name",
+        "slug",
         "latitude",
         "longitude",
         "max_speed",
@@ -18,5 +30,4 @@ class ScooterAdmin(admin.ModelAdmin):
         "battery_level",
         "max_speed",
     )
-    search_fields = ("name",)
-    prepopulated_fields = {"slug": ("name",)}
+    search_fields = ("slug",)

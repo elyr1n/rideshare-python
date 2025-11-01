@@ -96,7 +96,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 LANGUAGE_CODE = "en-us"
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Moscow"
 USE_I18N = True
 USE_TZ = True
 
@@ -124,6 +124,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # --- Custom User Model ---
 AUTH_USER_MODEL = "users.CustomUser"
+
+# --- Redirects ---
+LOGIN_URL = "users:login"
+LOGOUT_URL = "users:logout"
+LOGIN_REDIRECT_URL = "scooters:scooter-models-list"
+LOGOUT_REDIRECT_URL = "scooters:scooter-models-list"
 
 # --- Proxy settings for production behind Nginx ---
 USE_X_FORWARDED_HOST = True

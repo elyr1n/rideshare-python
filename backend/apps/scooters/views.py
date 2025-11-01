@@ -1,9 +1,12 @@
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Min, Count, Q
+from django.contrib.auth.decorators import login_required
+
 from .models import ScooterModel, Scooter
 from apps.cities.models import City
 
 
+@login_required()
 def scooter_models_list(request):
     city_id = request.GET.get("city")
     scooter_models = ScooterModel.objects.all()
@@ -34,6 +37,7 @@ def scooter_models_list(request):
     )
 
 
+@login_required()
 def scooter_list(request, model_slug):
     model = get_object_or_404(ScooterModel, slug=model_slug)
     scooters = Scooter.objects.filter(model=model, is_available=True)
@@ -48,6 +52,7 @@ def scooter_list(request, model_slug):
     )
 
 
+@login_required()
 def scooter_detail(request, scooter_slug):
     scooter = get_object_or_404(Scooter, slug=scooter_slug, is_available=True)
 

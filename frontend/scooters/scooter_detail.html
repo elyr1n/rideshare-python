@@ -12,18 +12,6 @@
         calculatePrice() {
             return (this.tripDuration * this.pricePerHour).toFixed(0);
         },
-        shareLocation() {
-            if (navigator.share) {
-                navigator.share({
-                    title: '{{ scooter.model.name }} #{{ scooter.id }}',
-                    text: 'Нашел отличный самокат для аренды!',
-                    url: window.location.href
-                });
-            } else {
-                navigator.clipboard.writeText(window.location.href);
-                alert('Ссылка скопирована в буфер обмена!');
-            }
-        },
         buildRoute() {
             const lat = document.getElementById('map').dataset.lat;
             const lng = document.getElementById('map').dataset.lng;
@@ -50,9 +38,9 @@
     <div class="mb-12">
         <a href="/scooters/{{ scooter.model.slug }}/" class="inline-flex items-center space-x-2 mb-6 transition-all duration-300 hover:translate-x-1" :class="darkMode ? 'text-purple-400 hover:text-purple-300' : 'text-purple-600 hover:text-purple-700'">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10V3L4 14h7v7l9-11h-7z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
-            <span class="font-semibold">Назад к списку</span>
+            <span class="font-semibold">Назад к моделям</span>
         </a>
     </div>
 

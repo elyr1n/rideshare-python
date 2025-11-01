@@ -14,14 +14,16 @@ class ScooterManager(models.Manager):
 
 
 class ScooterModel(models.Model):
-    name = models.CharField(max_length=100)
-    slug = models.SlugField(max_length=100, unique=True)
-    city = models.ForeignKey("cities.City", on_delete=models.CASCADE)
-    description = models.TextField()
+    name = models.CharField(max_length=100, verbose_name="Модель")
+    slug = models.SlugField(max_length=100, unique=True, verbose_name="URL")
+    city = models.ForeignKey(
+        "cities.City", on_delete=models.CASCADE, verbose_name="Город"
+    )
+    description = models.TextField(verbose_name="Описание")
 
     class Meta:
-        verbose_name = "Scooter Model"
-        verbose_name_plural = "Scooter Models"
+        verbose_name = "Модель"
+        verbose_name_plural = "Модели"
 
     def __str__(self):
         return f"{self.name}"
@@ -37,24 +39,30 @@ class ScooterModel(models.Model):
 
 
 class Scooter(models.Model):
-    slug = models.CharField(max_length=100, unique=True, default=shortuuid.uuid)
+    slug = models.CharField(
+        max_length=100, unique=True, default=shortuuid.uuid, verbose_name="URL"
+    )
     model = models.ForeignKey(
-        "scooters.ScooterModel", on_delete=models.CASCADE, related_name="scooters"
+        "scooters.ScooterModel",
+        on_delete=models.CASCADE,
+        related_name="scooters",
+        verbose_name="Модель",
     )
-    latitude = models.FloatField()
-    longitude = models.FloatField()
-    max_speed = models.IntegerField()
+    latitude = models.FloatField(verbose_name="Широта")
+    longitude = models.FloatField(verbose_name="Долгота")
+    max_speed = models.IntegerField(verbose_name="Максимальная скорость")
     battery_level = models.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(100)]
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        verbose_name="Уровень батареи",
     )
-    total_price = models.IntegerField()
-    is_available = models.BooleanField(default=True)
+    total_price = models.IntegerField(verbose_name="Общая стоимость")
+    is_available = models.BooleanField(default=True, verbose_name="Доступность")
 
     objects = ScooterManager()
 
     class Meta:
-        verbose_name = "Scooter"
-        verbose_name_plural = "Scooters"
+        verbose_name = "Самокат"
+        verbose_name_plural = "Самокаты"
 
     def __str__(self):
-        return f"{self.slug}"
+        return f"{self.model.name} ({self.slug})"

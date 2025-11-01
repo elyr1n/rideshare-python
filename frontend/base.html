@@ -131,14 +131,14 @@
                 <div class="flex items-center space-x-6">
                     <div class="hidden md:flex space-x-6">
                         <a href="/" class="hover:text-purple-500 transition font-medium">Главная</a>
-                        <a href="#models" class="hover:text-blue-500 transition font-medium">Модели</a>
+                        <a href="/#models" class="hover:text-blue-500 transition font-medium">Модели</a>
                     </div>
                     
                     <div class="flex items-center space-x-4">
                         {% if user.is_authenticated %}
                             <div class="flex items-center space-x-3 px-4 py-2 rounded-lg glass-effect" :class="darkMode ? 'bg-purple-950/30 border border-purple-500/30' : 'bg-purple-100/30 border border-purple-300/30'">
                                 <span class="text-sm font-medium">{{ user.first_name }}</span>
-                                <a href="{% url 'users:profile' %}" class="text-purple-500 hover:text-purple-400 transition font-medium">Профиль</a>
+                                <a href="{% url 'users:user_profile' user.id %}" class="text-purple-500 hover:text-purple-400 transition font-medium">Профиль</a>
                                 <form method="POST" action="{% url 'users:logout' %}" class="inline">
                                     {% csrf_token %}
                                     <button type="submit" class="text-red-500 hover:text-red-400 transition font-medium">Выход</button>

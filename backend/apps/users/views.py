@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.password_validation import validate_password
+from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 
 from .models import CustomUser
@@ -34,6 +35,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
+    messages.success(request, "Вы успешно вышли из аккаунта.")
     return redirect("users:login")
 
 
@@ -77,15 +79,20 @@ def register_view(request):
         except ValidationError as e:
             for error in e.messages:
                 messages.error(request, error)
-        except Exception as e:
-            messages.error(request, f"Ошибка при создании аккаунта: {str(e)}")
 
     return render(request, "users/register.html")
 
 
-@login_required()
-def profile_view(request):
-    return render(request, "users/profile.html")
+@login_required
+def profile_view(request, user_id=None):
+    profile_user = (
+        get_object_or_404(CustomUser, id=user_id) if user_id else request.user
+    )
+    return render(
+        request,
+        "users/profile.html",
+        {"profile_user": profile_user, "is_own_profile": request.user == profile_user},
+    )
 
 
 @login_required

@@ -19,7 +19,7 @@ class ScooterModel(models.Model):
     city = models.ForeignKey(
         "cities.City", on_delete=models.CASCADE, verbose_name="Город"
     )
-    description = models.TextField(verbose_name="Описание")
+    description = models.CharField(max_length=150, verbose_name="Описание")
 
     class Meta:
         verbose_name = "Модель"

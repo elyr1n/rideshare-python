@@ -152,14 +152,29 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 20,
 }
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR.parent / "django.log",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "INFO",
+            "propagate": True,
+        },
+    },
+}
+
 # --- Proxy settings for production behind Nginx ---
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-
-# --- HTTPS redirect ---
-# Отключаем на dev, включаем через Nginx на проде
-SECURE_SSL_REDIRECT = False
 
 # --- Basic security headers ---
 SECURE_BROWSER_XSS_FILTER = True  # Включает XSS фильтры браузера

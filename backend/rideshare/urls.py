@@ -7,6 +7,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("apps.scooters.urls", namespace="scooters")),
     path("accounts/", include("apps.users.urls", namespace="users")),
+    path("api/scooters/", include("apps.scooters.urls_api")),
 ]
 
 if settings.DEBUG:

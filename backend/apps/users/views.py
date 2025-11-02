@@ -73,7 +73,6 @@ def register_view(request):
             )
 
             login(request, user)
-            messages.success(request, "Аккаунт успешно создан!")
             return redirect("scooters:scooter-models-list")
 
         except ValidationError as e:

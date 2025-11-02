@@ -1,5 +1,10 @@
+import random
+import string
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.utils import timezone
+from datetime import timedelta
 
 
 class CustomUserManager(BaseUserManager):
@@ -56,6 +61,9 @@ class CustomUser(AbstractUser):
     last_name = models.CharField(max_length=150, verbose_name="Фамилия")
     phone_number = models.CharField(
         max_length=15, blank=True, null=True, verbose_name="Номер телефона"
+    )
+    email_verified = models.BooleanField(
+        default=False, verbose_name="Email подтвержден"
     )
     is_driver = models.BooleanField(default=False, verbose_name="Водитель")
     balance = models.DecimalField(

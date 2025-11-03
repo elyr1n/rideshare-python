@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.password_validation import validate_password
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
@@ -92,33 +91,3 @@ def profile_view(request, user_id=None):
         "users/profile.html",
         {"profile_user": profile_user, "is_own_profile": request.user == profile_user},
     )
-
-
-@login_required
-def change_password(request):
-    if request.method == "POST":
-        old_password = request.POST.get("old_password")
-        new_password1 = request.POST.get("password1")
-        new_password2 = request.POST.get("password2")
-
-        user = request.user
-
-        if not user.check_password(old_password):
-            messages.error(request, "Старый пароль неверен")
-            return redirect("users:change_password")
-
-        if new_password1 != new_password2:
-            messages.error(request, "Новые пароли не совпадают")
-            return redirect("users:change_password")
-
-        if len(new_password1) < 8:
-            messages.error(request, "Пароль должен содержать минимум 8 символов")
-            return redirect("users:change_password")
-
-        user.set_password(new_password1)
-        user.save()
-        update_session_auth_hash(request, user)
-        messages.success(request, "Пароль успешно изменён")
-        return redirect("users:profile")
-
-    return render(request, "users/change_password.html")

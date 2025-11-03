@@ -38,7 +38,6 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    messages.success(request, "Вы успешно вышли из аккаунта.")
     return redirect("users:login")
 
 
@@ -149,7 +148,6 @@ def password_reset_confirm(request, uidb64, token):
                     user.set_password(password1)
                     user.save()
                     login(request, user)
-                    messages.success(request, "Пароль успешно изменен!")
                     return render(request, "users/password_reset_complete.html")
                 except ValidationError as e:
                     for error in e.messages:

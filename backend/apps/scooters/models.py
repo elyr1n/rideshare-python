@@ -39,6 +39,7 @@ class ScooterModel(models.Model):
 
 
 class Scooter(models.Model):
+    image = models.ImageField(upload_to="scooters", verbose_name="Фото")
     slug = models.CharField(
         max_length=100, unique=True, default=shortuuid.uuid, verbose_name="URL"
     )

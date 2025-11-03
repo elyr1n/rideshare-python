@@ -168,18 +168,6 @@
                 </div>
                 
                 <div class="p-6">
-                    <div class="space-y-3 mb-6">
-                        <div class="flex items-center justify-between p-3 rounded-xl glass-effect border" :class="darkMode ? 'bg-slate-800/40 border-slate-700' : 'bg-slate-50 border-slate-200'">
-                            <div class="flex items-center space-x-2">
-                                <svg class="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"/>
-                                </svg>
-                                <span class="text-sm" :class="darkMode ? 'text-slate-400' : 'text-slate-600'">Цена</span>
-                            </div>
-                            <span class="text-lg font-bold" :class="darkMode ? 'text-purple-400' : 'text-purple-600'">{{ scooter.total_price }} ₽</span>
-                        </div>
-                    </div>
-                    
                     <a href="/scooter/{{ scooter.slug }}/" 
                        class="block w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-xl text-center transition-all duration-300 transform hover:scale-105 mb-3">
                         Подробнее

@@ -24,9 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rest_framework",
-    "rest_framework.authtoken",
-    "django_filters",
+    "django_celery_results",
 ]
 
 LOCAL_APPS = [
@@ -36,7 +34,13 @@ LOCAL_APPS = [
     "apps.cities",
 ]
 
-INSTALLED_APPS += LOCAL_APPS
+REST_FRAMEWORK_APPS = [
+    "rest_framework",
+    "rest_framework.authtoken",
+    "django_filters",
+]
+
+INSTALLED_APPS += LOCAL_APPS + REST_FRAMEWORK_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -152,6 +156,7 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 20,
 }
 
+# --- Logging ---
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -170,6 +175,26 @@ LOGGING = {
         },
     },
 }
+
+# --- Celery settings ---
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "Europe/Moscow"
+
+# --- Email settings ---
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # Email от почтового сервера
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # Пароль от почтового сервера
+DEFAULT_FROM_EMAIL = os.getenv(
+    "DEFAULT_FROM_EMAIL"
+)  # Email от которого будут отправляться письма
+SITE_URL = "http://localhost:8000"  # URL вашего сайта
 
 # --- Proxy settings for production behind Nginx ---
 USE_X_FORWARDED_HOST = True
@@ -196,7 +221,7 @@ SESSION_ENGINE = (
     "django.contrib.sessions.backends.cache"  # Сессии через кэш (Redis/Memcached)
 )
 SESSION_CACHE_ALIAS = "default"
-SESSION_COOKIE_AGE = 86400  # 24 часа
+SESSION_COOKIE_AGE = 604800  # 7 дней
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_HTTPONLY = True  # JS не может читать cookie

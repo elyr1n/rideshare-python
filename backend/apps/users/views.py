@@ -5,7 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.password_validation import validate_password
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth.tokens import default_token_generator
 
+from .tasks import send_password_reset_email
 from .models import CustomUser
 
 
@@ -91,3 +95,72 @@ def profile_view(request, user_id=None):
         "users/profile.html",
         {"profile_user": profile_user, "is_own_profile": request.user == profile_user},
     )
+
+
+@login_required
+def change_password(request):
+    if request.method == "POST":
+        email = request.user.email
+        user_id = request.user.id
+
+        old_password = request.POST.get("old_password")
+
+        if not old_password:
+            messages.error(request, "Пожалуйста, введите текущий пароль.")
+            return render(request, "users/change_password.html")
+
+        if not request.user.check_password(old_password):
+            messages.error(request, "Неверный текущий пароль.")
+            return render(request, "users/change_password.html")
+
+        send_password_reset_email(email, user_id)
+        return redirect("users:password_reset_sent")
+
+    return render(request, "users/change_password.html")
+
+
+def password_reset_sent(request):
+    return render(request, "users/password_reset_sent.html")
+
+
+def password_reset_confirm(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = CustomUser.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == "POST":
+            password1 = request.POST.get("password1")
+            password2 = request.POST.get("password2")
+
+            if not password1 or not password2:
+                messages.error(request, "Заполните все поля")
+            elif password1 != password2:
+                messages.error(request, "Пароли не совпадают")
+            elif len(password1) < 8:
+                messages.error(request, "Пароль должен быть минимум 8 символов")
+            elif password1.isdigit():
+                messages.error(request, "Пароль не может состоять только из цифр")
+            else:
+                try:
+                    validate_password(password1, user)
+                    user.set_password(password1)
+                    user.save()
+                    login(request, user)
+                    messages.success(request, "Пароль успешно изменен!")
+                    return render(request, "users/password_reset_complete.html")
+                except ValidationError as e:
+                    for error in e.messages:
+                        messages.error(request, error)
+
+        return render(
+            request,
+            "users/password_reset_confirm.html",
+            {"validlink": True, "uidb64": uidb64, "token": token},
+        )
+    else:
+        return render(
+            request, "users/password_reset_confirm.html", {"validlink": False}
+        )
